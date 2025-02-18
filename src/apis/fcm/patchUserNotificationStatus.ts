@@ -1,6 +1,6 @@
 import {axiosInstance} from "../index";
 
-const patchAllowNotification = async (allow: boolean) => {
+const patchUserNotificationStatus = async (allow: boolean) => {
     try {
         const response = await axiosInstance.patch(`/api/v1/user/notify/${allow}`);
         return response;
@@ -9,4 +9,4 @@ const patchAllowNotification = async (allow: boolean) => {
     }
 };
 
-export default patchAllowNotification;
+export default patchUserNotificationStatus;

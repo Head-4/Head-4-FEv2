@@ -6,9 +6,10 @@ import {ReactComponent as BellIcon} from "../../../assets/Common/BellIcon.svg";
 import CommonButton from "../../../components/CommonButton";
 import {useNavigate} from "react-router-dom";
 import {handleAllowNotification} from "../../../utils/firebaseConfig";
-import patchAllowNotification from "../../../apis/fcm/patchAllowNotification";
+import patchAllowNotification from "../../../apis/fcm/patchUserNotificationStatus";
 import {useMutation} from "@tanstack/react-query";
 import Typography from "../../../components/Typography";
+import {usePatchUserNotificationStatus} from "../../../layout/Aside/hooks/usePatchUserNotificationStatus";
 
 interface NotificationModalProps {
     isModalOpen: boolean;
@@ -17,16 +18,7 @@ interface NotificationModalProps {
 
 export default function NotificationModal({isModalOpen, setIsModalOpen}: NotificationModalProps) {
     const navigate = useNavigate();
-
-    const {mutateAsync: patchAllowMutate} = useMutation({
-        mutationFn: (allow: boolean) => patchAllowNotification(allow),
-        onSuccess: (data) => {
-            console.log('success: ', data);
-        },
-        onError: (error) => {
-            console.error("Error: ", error);
-        },
-    });
+    const patchUserNotificationStatus = usePatchUserNotificationStatus();
 
     const {mutateAsync: patchFcmTokenMutate} = useMutation({
         mutationFn: () => handleAllowNotification(),
@@ -42,7 +34,7 @@ export default function NotificationModal({isModalOpen, setIsModalOpen}: Notific
         if (isAllow) {
             const {result} = await patchFcmTokenMutate();
             if (result === "success") {
-                await patchAllowMutate(true);
+                patchUserNotificationStatus(true);
             }
         }
         navigate('/register/complete');

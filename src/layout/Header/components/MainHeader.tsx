@@ -5,28 +5,23 @@ import {ReactComponent as MenuIcon} from "../../../assets/Layout/Header/MenuIcon
 import {ReactComponent as SearchIcon} from "../../../assets/Layout/Header/SearchIcon.svg";
 import Row from "../../../styles/Common/Row";
 import useAsideStore from "../../../store/AsideStore";
-import {useQuery} from "@tanstack/react-query";
-import getUniversity from "../../../apis/university/getUniversity";
 import Typography from "../../../components/Typography";
 import {TextOverflow} from "../../../styles/Common/TextOverflow";
+import {useUserUniversity} from "../../../pages/university/hooks/useUserUniversity";
 
 export default function MainHeader() {
     const navigate = useNavigate();
-
     const toggleAside = useAsideStore((state) => state.toggleAside);
-    const {data: university, isError, isLoading} = useQuery({
-        queryKey: ["university"],
-        queryFn: getUniversity,
-        staleTime: 10000,
-    });
 
-    // if (!isLoading && (!university?.data || isError)) {
-    //     navigate("/register/university");
+    const userUniversity = useUserUniversity();
+
+    // if (!isLoading && (!userUniversity?.data || isError)) {
+    //     navigate("/register/userUniversity");
     // }
 
     return (
         <>
-            <HeaderH4 typoSize="H4" color="Black">{university?.data}</HeaderH4>
+            <HeaderH4 typoSize="H4" color="Black">{userUniversity?.data}</HeaderH4>
             <Row $gap={12}>
                 <Link to='/search'>
                     <Row>

@@ -1,6 +1,6 @@
 import {axiosInstance} from "../index";
 
-const deleteKeyword = async (notifyId: number) => {
+const deleteUserKeyword = async (notifyId: number) => {
     try {
         const response = await axiosInstance.delete(`/api/v1/user/delete/keyword/${notifyId}`);
         return response;
@@ -9,4 +9,4 @@ const deleteKeyword = async (notifyId: number) => {
     }
 };
 
-export default deleteKeyword;
+export default deleteUserKeyword;

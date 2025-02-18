@@ -1,12 +1,12 @@
 import React, {useEffect} from 'react';
 import NotificationDetail from "./components/NotificationDetail";
 import styled from "styled-components";
-import {useInfiniteQuery} from "@tanstack/react-query";
-import getNotifications from "../../apis/notification/getNotifications";
 import {useInView} from "react-intersection-observer";
 import {NotificationType} from "../../types";
+import {useNotifications} from "./hooks/useNotifications";
 
 export default function Notification() {
+    const {data, fetchNextPage, isFetchingNextPage, hasNextPage} = useNotifications();
     const {ref, inView} = useInView();
 
     useEffect(() => {
@@ -14,20 +14,6 @@ export default function Notification() {
             fetchNextPage();
         }
     }, [inView])
-
-    const {
-        data,
-        fetchNextPage,
-        isFetchingNextPage,
-        hasNextPage,
-    } = useInfiniteQuery({
-        queryKey: ["notifications"],
-        queryFn: ({pageParam = 0}) => getNotifications(pageParam),
-        getNextPageParam: (lastPage) => {
-            return lastPage?.hasNext ? lastPage.cursor : undefined;
-        },
-        initialPageParam: 0,
-    });
 
     return (
         <>

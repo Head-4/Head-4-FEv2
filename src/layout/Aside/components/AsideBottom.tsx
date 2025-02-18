@@ -9,9 +9,9 @@ import useAsideStore from "../../../store/AsideStore";
 import Typography from "../../../components/Typography";
 import {TextOverflow} from "../../../styles/Common/TextOverflow";
 import {handleAllowNotification} from "../../../utils/firebaseConfig";
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import patchAllowNotification from "../../../apis/fcm/patchAllowNotification";
-import getNotificationAllow from "../../../apis/fcm/getNotificationAllow";
+import {useMutation} from "@tanstack/react-query";
+import {useUserNotificationStatus} from "../hooks/useUserNotificationStatus";
+import {usePatchUserNotificationStatus} from "../hooks/usePatchUserNotificationStatus";
 
 const AsideItems = [
     {
@@ -32,25 +32,9 @@ const AsideItems = [
 ];
 
 export default function AsideBottom() {
-    const queryClient = useQueryClient();
     const toggleAside = useAsideStore((state) => state.toggleAside);
-
-    const {data: notificationAllow} = useQuery({
-        queryKey: ["notificationAllow"],
-        queryFn: getNotificationAllow,
-        staleTime: 100000,
-    });
-
-    const {mutate: patchAllowMutate} = useMutation({
-        mutationFn: (allow: boolean) => patchAllowNotification(allow),
-        onSuccess: (data) => {
-            console.log('success: ', data);
-            queryClient.invalidateQueries({queryKey: ['notificationAllow']})
-        },
-        onError: (error) => {
-            console.error("Error: ", error);
-        },
-    });
+    const userNotificationStatus = useUserNotificationStatus();
+    const patchUserNotificationStatus = usePatchUserNotificationStatus();
 
     const {mutateAsync: patchFcmTokenMutate} = useMutation({
         mutationFn: () => handleAllowNotification(),
@@ -63,7 +47,7 @@ export default function AsideBottom() {
     });
 
     const clickKeyWordToggle = async () => {
-        if (!notificationAllow?.data) {
+        if (!userNotificationStatus?.data) {
             console.log('알림 허용')
 
             // if (토큰 있는지 확인하는 API 결과){
@@ -71,12 +55,12 @@ export default function AsideBottom() {
             // }else{
             //     const {result} = await patchFcmTokenMutate();
             //     if (result === "success") {
-            //         patchAllowMutate(true);
+            //         patchUserNotificationStatus(true);
             //     }
             // }
         } else {
             console.log('알림 거절')
-            patchAllowMutate(false);
+            patchUserNotificationStatus(false);
         }
     };
 
@@ -85,8 +69,8 @@ export default function AsideBottom() {
             <OnOffDiv>
                 <BellIcon/>
                 <AsideSetting typoSize="B1_semibold" color="Black">키워드 알림</AsideSetting>
-                <KeyWordOnOffButton onClick={clickKeyWordToggle} $keyWordToggle={notificationAllow?.data}>
-                    {notificationAllow?.data ? "ON" : "OFF"}
+                <KeyWordOnOffButton onClick={clickKeyWordToggle} $keyWordToggle={userNotificationStatus?.data}>
+                    {userNotificationStatus?.data ? "ON" : "OFF"}
                 </KeyWordOnOffButton>
             </OnOffDiv>
             <ul>

@@ -1,6 +1,6 @@
 import {axiosInstance} from "../index";
 
-const getUniversity = async () => {
+const getUserUniversity = async () => {
     try {
         const response = await axiosInstance.get(`api/v1/user/university`);
         return response.data;
@@ -9,4 +9,4 @@ const getUniversity = async () => {
     }
 };
 
-export default getUniversity;
+export default getUserUniversity;

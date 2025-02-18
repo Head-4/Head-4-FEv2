@@ -5,14 +5,14 @@ import {Keyword} from "../../../types";
 
 interface KeyWordProps {
     it: Keyword;
-    deleteKeywordMutate: (notifyId: number) => void;
+    deleteUserKeyword: (notifyId: number) => void;
 }
 
-export default function KeyWord({it, deleteKeywordMutate}: KeyWordProps) {
+export default function KeyWord({it, deleteUserKeyword}: KeyWordProps) {
     return (
         <KeyWordDiv>
             <KeyWordContent>{it.keyword}</KeyWordContent>
-            <DeleteButton onClick={() => deleteKeywordMutate(it.notifyId)}>
+            <DeleteButton onClick={() => deleteUserKeyword(it.notifyId)}>
                 <DeleteIcon/>
             </DeleteButton>
         </KeyWordDiv>
