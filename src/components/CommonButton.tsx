@@ -9,7 +9,7 @@ interface CommonButtonProps {
 
 export default function CommonButton({onClick, children, isActive}: CommonButtonProps) {
     return (
-        <CommonButtonWrapper onClick={onClick} $isActive={isActive}>
+        <CommonButtonWrapper onClick={onClick} $isActive={isActive} disabled={!isActive}>
             {children}
         </CommonButtonWrapper>
     );
