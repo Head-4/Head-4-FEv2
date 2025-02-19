@@ -5,15 +5,16 @@ import AlertBox from "../../components/AlertBox";
 import {useAlertBox} from "../../hooks/alertBox/useAlertBox";
 import CommonButton from "../../components/CommonButton";
 import {useNavigate} from "react-router-dom";
-import patchUniversity from "../../apis/university/patchUniversity";
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import getUniversity from "../../apis/university/getUniversity";
 import Typography from "../../components/Typography";
 import {UNIVERSITY_LIST} from "../../utils/const";
+import {useUserUniversity} from "./hooks/useUserUniversity";
+import {usePatchUserUniversity} from "./hooks/usePatchUserUniversity";
 
 export default function UniversityEdit() {
-    const queryClient = useQueryClient();
     const navigate = useNavigate();
+
+    const userUniversity = useUserUniversity();
+    const patchUserUniversity = usePatchUserUniversity();
 
     const [university, setUniversity] = useState<string>('');
     const [options, setOptions] = useState<string[]>([]);
@@ -21,29 +22,6 @@ export default function UniversityEdit() {
 
     const isFirst = JSON.parse(localStorage.getItem('isFirst') || 'false');
     const inputRef = useRef<HTMLInputElement>(null);
-
-    const {data} = useQuery({
-        queryKey: ["university"],
-        queryFn: getUniversity,
-        staleTime: 100000,
-    });
-
-    const {mutate: patchUniversityMutate} = useMutation({
-        mutationFn: (university: string) => patchUniversity(university),
-        onSuccess: (data) => {
-            console.log("Success: ", data);
-            queryClient.invalidateQueries({queryKey: ['university']});
-            queryClient.invalidateQueries({queryKey: ['articles']});
-            if (isFirst) {
-                navigate('/register/keyword');
-            } else {
-                showAlert(true, data?.data.success);
-            }
-        },
-        onError: (error) => {
-            console.error("Error: ", error);
-        },
-    });
 
     const InputUniversityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUniversity(e.target.value);
@@ -56,13 +34,19 @@ export default function UniversityEdit() {
     };
 
     const clickButton = async () => {
+        const result = await patchUserUniversity(university);
+        if (isFirst) {
+            navigate('/register/keyword');
+        } else {
+            showAlert(true, result?.data.success); // 확인 필요
+        }
         setUniversity('');
-        patchUniversityMutate(university);
     }
+
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (inputRef.current && !inputRef.current.contains(event.target as Node) ) {
+            if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
                 setOptions([]);
             }
         };
@@ -77,10 +61,10 @@ export default function UniversityEdit() {
     return (
         <>
             <UniversitySection>
-                {data?.data ?
+                {userUniversity?.data ?
                     <UniversityCurrent>
                         <span>현재 학교</span>
-                        <span>{data?.data}</span>
+                        <span>{userUniversity?.data}</span>
                     </UniversityCurrent>
                     :
                     <Typography typoSize="H3" color="Black" style={{marginBottom: "32px"}}>

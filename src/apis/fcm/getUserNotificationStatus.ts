@@ -1,6 +1,6 @@
 import {axiosInstance} from "../index";
 
-const getNotificationAllow = async () => {
+const getUserNotificationStatus = async () => {
     try {
         const response = await axiosInstance.get(`api/v1/user/allow`);
         return response.data;
@@ -9,4 +9,4 @@ const getNotificationAllow = async () => {
     }
 };
 
-export default getNotificationAllow;
+export default getUserNotificationStatus;

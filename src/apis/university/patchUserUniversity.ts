@@ -1,6 +1,6 @@
 import {axiosInstance} from "../index";
 
-const patchUniversity = async (name: string) => {
+const patchUserUniversity = async (name: string) => {
     try {
         const response = await axiosInstance.patch(`/api/v1/user/univ/${name}`);
         return response;
@@ -9,4 +9,4 @@ const patchUniversity = async (name: string) => {
     }
 };
 
-export default patchUniversity;
+export default patchUserUniversity;

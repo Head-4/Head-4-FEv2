@@ -4,15 +4,16 @@ import KeyWord from "./components/KeyWord";
 import KeyWordInputSection from "./components/KeyWordInputSection";
 import CommonButton from "../../components/CommonButton";
 import NotificationModal from "./components/NotificationModal";
-import postKeyword from "../../apis/keyword/postKeyword";
-import getKeywordList from "../../apis/keyword/getKeywordList";
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import deleteKeyword from "../../apis/keyword/deleteKeyword";
 import {Keyword} from "../../types";
 import Typography from "../../components/Typography";
+import {useUserKeywords} from "./hooks/useUserKeywords";
+import {useDeleteUserKeyword} from "./hooks/useDeleteUserKeyword";
+import {usePostUserKeyword} from "./hooks/usePostUserKeyword";
 
 export default function KeyWordEdit() {
-    const queryClient = useQueryClient();
+    const userKeywords = useUserKeywords();
+    const deleteUserKeyword = useDeleteUserKeyword();
+    const postUserKeyword = usePostUserKeyword();
 
     const [keyWord, setKeyWord] = useState<string>('');
     const [isInputFocused, setIsInputFocused] = useState<boolean>(false);
@@ -20,42 +21,17 @@ export default function KeyWordEdit() {
     const [errorMessage, setErrorMessage] = useState<string>('최대 5개까지 추가할 수 있어요');
 
     const isFirst = JSON.parse(localStorage.getItem('isFirst') || 'false');
-
-    const fallback: string[] = [];
-    const {data: Keywords = fallback} = useQuery({
-        queryKey: ["keywords"],
-        queryFn: getKeywordList,
-        staleTime: 100000,
-    });
-
-    const {mutate: deleteKeywordMutate} = useMutation({
-        mutationFn: (notifyId: number) => deleteKeyword(notifyId),
-        onSuccess: () =>
-            queryClient.invalidateQueries({queryKey: ['keywords']}),
-    });
-
-    const {mutate: postKeywordMutate} = useMutation({
-        mutationFn: (keyword: string) => postKeyword(keyword),
-        onSuccess: (data) => {
-            console.log("Success: ", data);
-            queryClient.invalidateQueries({queryKey: ['keywords']});
-        },
-        onError: (error) => {
-            console.error("Error: ", error);
-        },
-    });
-
     const isAddActive: boolean = keyWord.length > 0;
-    const isMax: boolean = Keywords.data?.length >= 5;
+    const isMax: boolean = userKeywords.data?.length >= 5;
 
     const addKeyWordClick = async (keyword: string) => {
-        if (Keywords.data?.some((item: Keyword) => item.keyword === keyword)) {
+        if (userKeywords.data?.some((item: Keyword) => item.keyword === keyword)) {
             setErrorMessage('같은 키워드는 추가할 수 없어요');
             return;
         }
         setKeyWord('');
         setErrorMessage('최대 5개까지 추가할 수 있어요');
-        postKeywordMutate(keyword);
+        postUserKeyword(keyword);
     }
 
     const clickButton = () => {
@@ -85,11 +61,11 @@ export default function KeyWordEdit() {
                     {errorMessage}
                 </NoticeP>
                 <KeyWordWrapper>
-                    {Keywords.data?.map((it: Keyword) =>
+                    {userKeywords.data?.map((it: Keyword) =>
                         <KeyWord
                             key={it.notifyId}
                             it={it}
-                            deleteKeywordMutate={deleteKeywordMutate}
+                            deleteUserKeyword={deleteUserKeyword}
                         />
                     )}
                 </KeyWordWrapper>

@@ -2,15 +2,16 @@ import React, {useEffect, useState} from 'react';
 import styled from "styled-components";
 import NavKeyWord from "./components/NavKeyWord";
 import NoticeItem from "../../components/NoticeItem";
-import {useInfiniteQuery, useQuery} from "@tanstack/react-query";
 import {useInView} from 'react-intersection-observer';
-import getArticles from "../../apis/main/getArticles";
-import getKeywordList from "../../apis/keyword/getKeywordList";
 import {Keyword} from "../../types";
 import Typography from "../../components/Typography";
+import {useUserKeywords} from "../keyword/hooks/useUserKeywords";
+import {useArticles} from "./hooks/useArticles";
 
 export default function Main() {
+    const userKeywords = useUserKeywords();
     const [selectedKeyWord, setSelectedKeyWord] = useState<string>("null");
+    const {data, fetchNextPage, isFetchingNextPage, hasNextPage} = useArticles(selectedKeyWord);
     const {ref, inView} = useInView();
 
     useEffect(() => {
@@ -18,28 +19,6 @@ export default function Main() {
             fetchNextPage();
         }
     }, [inView])
-
-    const {
-        data,
-        fetchNextPage,
-        isFetchingNextPage,
-        hasNextPage,
-    } = useInfiniteQuery({
-        queryKey: ["articles", selectedKeyWord],
-        queryFn: ({pageParam = 0}) => getArticles(pageParam, selectedKeyWord),
-        getNextPageParam: (lastPage) => {
-            return lastPage?.hasNext ? lastPage.cursor : undefined;
-        },
-        staleTime: 10000,
-        initialPageParam: 0,
-    });
-
-    const fallback: string[] = [];
-    const {data: Keywords = fallback} = useQuery({
-        queryKey: ["keywords"],
-        queryFn: getKeywordList,
-        staleTime: 10000,
-    });
 
     const clickKeyWord = (keyword: string) => {
         setSelectedKeyWord(keyword);
@@ -57,7 +36,7 @@ export default function Main() {
                     >
                         전체
                     </NavKeyWord>
-                    {Keywords.data?.map((it: Keyword) =>
+                    {userKeywords.data?.map((it: Keyword) =>
                         <NavKeyWord
                             key={it.notifyId}
                             it={it}

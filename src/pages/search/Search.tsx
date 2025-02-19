@@ -3,14 +3,14 @@ import NoticeItem from "../../components/NoticeItem";
 import styled from "styled-components";
 import {ReactComponent as SearchIcon} from "../../assets/Search/SearchIcon.svg";
 import {useInView} from "react-intersection-observer";
-import {useInfiniteQuery} from "@tanstack/react-query";
-import getArticles from "../../apis/main/getArticles";
 import Typography from "../../components/Typography";
 import debounce from 'lodash/debounce';
+import {useArticles} from "../main/hooks/useArticles";
 
 export default function Search() {
     const [searchInput, setSearchInput] = useState<string>('');
     const [debouncedSearch, setDebouncedSearch] = useState<string>('');
+    const {data, fetchNextPage, isFetchingNextPage, hasNextPage} = useArticles(debouncedSearch);
     const {ref, inView} = useInView();
 
     useEffect(() => {
@@ -27,22 +27,6 @@ export default function Search() {
             fetchNextPage();
         }
     }, [inView])
-
-    const {
-        data,
-        fetchNextPage,
-        isFetchingNextPage,
-        hasNextPage,
-    } = useInfiniteQuery({
-        queryKey: ["articles", debouncedSearch],
-        queryFn: ({pageParam = 0}) => getArticles(pageParam, debouncedSearch),
-        getNextPageParam: (lastPage) => {
-            return lastPage?.hasNext ? lastPage.cursor : undefined;
-        },
-        staleTime: 100000,
-        initialPageParam: 0,
-        enabled: debouncedSearch !== '',
-    });
 
     const inputSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchInput(e.target.value);

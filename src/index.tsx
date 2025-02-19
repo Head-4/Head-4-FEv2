@@ -3,26 +3,13 @@ import ReactDOM from 'react-dom/client';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
 import App from "./App";
-import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
-const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            refetchOnWindowFocus: false,
-            refetchOnReconnect: false,
-            retry: 0,
-        },
-    },
-});
+
 root.render(
-    <QueryClientProvider client={queryClient}>
-        <App/>
-        <ReactQueryDevtools/>
-    </QueryClientProvider>
+    <App/>
 );
 
 // If you want your app to work offline and load faster, you can change

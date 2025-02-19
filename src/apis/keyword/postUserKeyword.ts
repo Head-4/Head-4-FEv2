@@ -1,6 +1,6 @@
 import {axiosInstance} from "../index";
 
-const postKeyword = async (keyword: string) => {
+const postUserKeyword = async (keyword: string) => {
     try {
         const response = await axiosInstance.post(`/api/v1/user/add/keyword/${keyword}`);
         return response;
@@ -9,4 +9,4 @@ const postKeyword = async (keyword: string) => {
     }
 };
 
-export default postKeyword;
+export default postUserKeyword;
