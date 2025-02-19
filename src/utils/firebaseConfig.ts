@@ -1,9 +1,9 @@
 import {initializeApp} from "firebase/app";
 import {getMessaging, getToken, Messaging} from "firebase/messaging";
-import patchFcmToken from "../apis/fcm/patchFcmToken";
 
 interface NotificationResponse {
     result: "success" | "fail";
+    userFcmToken: string;
 }
 
 const firebaseConfig = {
@@ -23,24 +23,23 @@ export async function handleAllowNotification(): Promise<NotificationResponse> {
         const permission: "granted" | "denied" | "default" = await Notification.requestPermission();
 
         if (permission === "granted") {
-            const currentToken: string | null = await getToken(messaging, {
+            const userFcmToken: string = await getToken(messaging, {
                 vapidKey: process.env.REACT_APP_VAPID_KEY
             });
 
-            if (currentToken) {
-                console.log("토큰 등록");
-                await patchFcmToken(currentToken);
-                return {result: "success"};
+            if (userFcmToken) {
+                console.log("토큰 등록 : ", userFcmToken);
+                return {result: "success", userFcmToken: userFcmToken};
             } else {
                 console.log("권한 허용했는데 토큰은 못받음");
-                return {result: "fail"};
+                return {result: "fail", userFcmToken: "fail"};
             }
         } else {
             console.log("web push 권한이 차단되었습니다. 알림을 사용하시려면 권한을 허용해주세요");
-            return {result: "fail"};
+            return {result: "fail", userFcmToken: "fail"};
         }
     } catch (error) {
         console.error("푸시 토큰 가져오는 중에 에러 발생", error);
-        return {result: "fail"};
+        return {result: "fail", userFcmToken: "fail"};
     }
 }

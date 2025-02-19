@@ -1,15 +1,14 @@
 import React from 'react';
-import Overlay from "../../../styles/Common/Overlay";
+import Overlay from "../../styles/Common/Overlay";
 import styled from "styled-components";
-import Column from "../../../styles/Common/Column";
-import {ReactComponent as BellIcon} from "../../../assets/Common/BellIcon.svg";
-import CommonButton from "../../../components/CommonButton";
+import Column from "../../styles/Common/Column";
+import {ReactComponent as BellIcon} from "../../assets/Common/BellIcon.svg";
+import CommonButton from "../../components/CommonButton";
 import {useNavigate} from "react-router-dom";
-import {handleAllowNotification} from "../../../utils/firebaseConfig";
-import patchAllowNotification from "../../../apis/fcm/patchUserNotificationStatus";
-import {useMutation} from "@tanstack/react-query";
-import Typography from "../../../components/Typography";
-import {usePatchUserNotificationStatus} from "../../../layout/Aside/hooks/usePatchUserNotificationStatus";
+import {handleAllowNotification} from "../../utils/firebaseConfig";
+import Typography from "../../components/Typography";
+import {usePatchUserNotificationStatus} from "../../layout/Aside/hooks/usePatchUserNotificationStatus";
+import {usePatchUserFcmToken} from "./hooks/usePatchUserFcmToken";
 
 interface NotificationModalProps {
     isModalOpen: boolean;
@@ -18,22 +17,14 @@ interface NotificationModalProps {
 
 export default function NotificationModal({isModalOpen, setIsModalOpen}: NotificationModalProps) {
     const navigate = useNavigate();
+    const patchUserFcmToken = usePatchUserFcmToken();
     const patchUserNotificationStatus = usePatchUserNotificationStatus();
-
-    const {mutateAsync: patchFcmTokenMutate} = useMutation({
-        mutationFn: () => handleAllowNotification(),
-        onSuccess: (data) => {
-            console.log('success: ', data);
-        },
-        onError: (error) => {
-            console.error("Error: ", error);
-        },
-    });
 
     const clickButton = async (isAllow: boolean) => {
         if (isAllow) {
-            const {result} = await patchFcmTokenMutate();
+            const {result, userFcmToken} = await handleAllowNotification();
             if (result === "success") {
+                await patchUserFcmToken(userFcmToken); // 여기서 토큰이 저장이 됐는지 확인
                 patchUserNotificationStatus(true);
             }
         }
