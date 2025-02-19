@@ -8,10 +8,10 @@ import {ReactComponent as BellIcon} from "../../../assets/Common/BellIcon.svg";
 import useAsideStore from "../../../store/AsideStore";
 import Typography from "../../../components/Typography";
 import {TextOverflow} from "../../../styles/Common/TextOverflow";
-import {handleAllowNotification} from "../../../utils/firebaseConfig";
-import {useMutation} from "@tanstack/react-query";
 import {useUserNotificationStatus} from "../hooks/useUserNotificationStatus";
 import {usePatchUserNotificationStatus} from "../hooks/usePatchUserNotificationStatus";
+import {usePatchUserFcmToken} from "../../../pages/utilPages/hooks/usePatchUserFcmToken";
+import {handleAllowNotification} from "../../../utils/firebaseConfig";
 
 const AsideItems = [
     {
@@ -35,29 +35,20 @@ export default function AsideBottom() {
     const toggleAside = useAsideStore((state) => state.toggleAside);
     const userNotificationStatus = useUserNotificationStatus();
     const patchUserNotificationStatus = usePatchUserNotificationStatus();
-
-    const {mutateAsync: patchFcmTokenMutate} = useMutation({
-        mutationFn: () => handleAllowNotification(),
-        onSuccess: (data) => {
-            console.log('success: ', data);
-        },
-        onError: (error) => {
-            console.error("Error: ", error);
-        },
-    });
+    const patchUserFcmToken = usePatchUserFcmToken();
 
     const clickKeyWordToggle = async () => {
         if (!userNotificationStatus?.data) {
-            console.log('알림 허용')
-
-            // if (토큰 있는지 확인하는 API 결과){
-            //     updateNotification(true);
-            // }else{
-            //     const {result} = await patchFcmTokenMutate();
-            //     if (result === "success") {
-            //         patchUserNotificationStatus(true);
-            //     }
-            // }
+            // 토큰 있는지 없는지 확인하는 api 있어야 할 듯 - 유저 정보에 저장
+            if (Notification.permission === "granted"){
+                patchUserNotificationStatus(true);
+            }else{
+                const {result, userFcmToken} = await handleAllowNotification();
+                if (result === "success") {
+                    await patchUserFcmToken(userFcmToken); // 여기서 토큰이 저장이 됐는지 확인
+                    patchUserNotificationStatus(true);
+                }
+            }
         } else {
             console.log('알림 거절')
             patchUserNotificationStatus(false);

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import KeyWord from "./components/KeyWord";
 import KeyWordInputSection from "./components/KeyWordInputSection";
 import CommonButton from "../../components/CommonButton";
-import NotificationModal from "./components/NotificationModal";
+import NotificationModal from "../utilPages/NotificationModal";
 import {Keyword} from "../../types";
 import Typography from "../../components/Typography";
 import {useUserKeywords} from "./hooks/useUserKeywords";

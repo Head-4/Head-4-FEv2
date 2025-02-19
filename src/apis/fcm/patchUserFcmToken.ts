@@ -1,6 +1,6 @@
 import {axiosInstance} from "../index";
 
-const patchFcmToken = async (token: string) => {
+const patchUserFcmToken = async (token: string) => {
     try {
         const response = await axiosInstance.patch(`/api/v1/user/fcm/${token}`);
 
@@ -10,4 +10,4 @@ const patchFcmToken = async (token: string) => {
     }
 };
 
-export default patchFcmToken;
+export default patchUserFcmToken;
